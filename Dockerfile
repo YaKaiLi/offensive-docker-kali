@@ -20,7 +20,7 @@ RUN apt-get update && apt-get upgrade -y && \
     curl \
     wget \
     vim \
-    mlocate \
+    plocate \
     metasploit-framework \
     sqlmap \
     postgresql \
