@@ -71,7 +71,7 @@ RUN apt-get update && \
     python3-pip \
     openjdk-8-jdk \
     ruby-full \
-    python-dev
+    python3-dev
 
 # 安全工具
 RUN apt-get update && \
