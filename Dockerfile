@@ -34,8 +34,8 @@ RUN sed -i 's/plugins=(git)/plugins=(git aws golang nmap node pip pipenv python 
     && echo 'autoload -U compinit && compinit' >> /root/.zshrc
 
 # 复制并安装 Miniconda
-COPY Miniconda3-py310_24.9.2-0-Linux-x86_64.sh /tmp/miniconda.sh
-RUN bash /tmp/miniconda.sh -p /opt/miniconda -b \
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86_64.sh -O /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -p /opt/miniconda -b \
     && rm /tmp/miniconda.sh
 
 # 重新声明PATH确保conda命令可用
