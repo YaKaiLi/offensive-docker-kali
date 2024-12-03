@@ -494,12 +494,12 @@ RUN \
 WORKDIR /temp/peass
 
 RUN \
-    latest_release_url=$(curl --silent --head https://github.com/carlospolop/PEASS-ng/releases/latest | grep "location:" | cut -d" " -f2- | sed "s/tag/download/" | tr -d '\r') && \
-    wget -q "${latest_release_url}/winPEASany.exe" && \
-    wget -q "${latest_release_url}/winPEASx64.exe" && \
-    wget -q "${latest_release_url}/winPEASx86.exe" && \
-    wget -q "${latest_release_url}/winPEAS.bat" && \
-    wget -q "${latest_release_url}/linpeas.sh"
+    latest_release_url=$(curl -s https://api.github.com/repos/peass-ng/PEASS-ng/releases/latest | grep "tag_name" | cut -d'"' -f4) && \
+    wget -q "https://github.com/peass-ng/PEASS-ng/releases/download/${latest_release_url}/winPEASany.exe" && \
+    wget -q "https://github.com/peass-ng/PEASS-ng/releases/download/${latest_release_url}/winPEASx64.exe" && \
+    wget -q "https://github.com/peass-ng/PEASS-ng/releases/download/${latest_release_url}/winPEASx86.exe" && \
+    wget -q "https://github.com/peass-ng/PEASS-ng/releases/download/${latest_release_url}/winPEAS.bat" && \
+    wget -q "https://github.com/peass-ng/PEASS-ng/releases/download/${latest_release_url}/linpeas.sh"
 
 # Install smbmap
 WORKDIR /temp
