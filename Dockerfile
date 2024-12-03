@@ -5,6 +5,8 @@ LABEL maintainer="star5o" \
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
+ENV CONDA_DIR=/opt/conda
+ENV PATH=$CONDA_DIR/bin:$PATH
 
 # 基础设置
 RUN apt-get update && \
@@ -71,12 +73,31 @@ RUN apt-get update && \
     php-xml \
     libapache2-mod-php
 
-# 编程语言和环境
+# 安装Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    bash ~/miniconda.sh -b -p $CONDA_DIR && \
+    rm ~/miniconda.sh && \
+    echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc && \
+    find $CONDA_DIR -follow -type f -name '*.a' -delete && \
+    find $CONDA_DIR -follow -type f -name '*.js.map' -delete && \
+    $CONDA_DIR/bin/conda clean -afy
+
+# 创建Python环境并安装包
+RUN conda create -n security python=3.9 -y && \
+    conda activate security && \
+    conda install -y \
+        numpy \
+        pandas \
+        requests \
+        beautifulsoup4 \
+        lxml \
+        jupyter && \
+    conda clean -afy
+
+# 编程语言和环境（移除了Python相关安装）
 RUN apt-get update && \
     apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-dev \
     openjdk-17-jdk \
     ruby-full \
     ruby-dev \
@@ -124,13 +145,12 @@ RUN gem install \
     wpscan \
     evil-winrm
 
-# 升级pip
-RUN python3 -m pip install --upgrade pip
-
 # 清理缓存
 RUN apt-get clean
 
-RUN python3 -m pip install --upgrade pip
+# 设置默认的conda环境
+ENV CONDA_DEFAULT_ENV=security
+
 
 FROM baseline as builder
 
