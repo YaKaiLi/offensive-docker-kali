@@ -1,7 +1,7 @@
 FROM ubuntu as baseline
 
-LABEL maintainer="Arsenio Aguirre" \
-      email="a_aguirre117@hotmail.com"
+LABEL maintainer="star5o" \
+      email="jkliyakai@163.com"
 
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
