@@ -1,156 +1,112 @@
 FROM ubuntu as baseline
 
 LABEL maintainer="star5o" \
-      email="jkliyakai@163.com"
+    email="jkliyakai@163.com" \
+    description="Security focused development environment" \
+    version="1.0"
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Shanghai
-ENV CONDA_DIR=/opt/conda
-ENV PATH=$CONDA_DIR/bin:$PATH
+# 环境变量设置
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Asia/Shanghai \
+    CONDA_DIR=/opt/miniconda \
+    PATH=/opt/miniconda/bin:${PATH} \
+    LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8
 
-# 基础设置
-RUN apt-get update && \
-    apt-get install -y tzdata && \
-    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
-
-# 网络工具
-RUN apt-get update && \
-    apt-get install -y \
-    traceroute \
-    whois \
-    host \
-    dnsutils \
-    net-tools \
-    tcpdump \
-    telnet \
-    prips \
-    cifs-utils \
-    iputils-ping \
-    openvpn \
-    netcat-openbsd
-
-# 系统工具
-RUN apt-get update && \
-    apt-get install -y \
-    htop \
-    figlet \
-    rlwrap \
-    git \
-    rdate \
-    zsh \
-    locate \
-    tree \
-    vim \
-    wget \
-    ssh \
-    rsyslog \
-    dos2unix
-
-# 文件处理
-RUN apt-get update && \
-    apt-get install -y \
+# 首先安装zsh和必要的基础工具
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
-    unzip \
-    p7zip-full \
-    fcrackzip \
-    exiftool \
-    steghide \
-    binwalk \
-    foremost
+    git \
+    wget \
+    zsh \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Web服务和开发
-RUN apt-get update && \
-    apt-get install -y \
-    apache2 \
-    squid \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libwww-perl \
-    php \
-    php-cli \
-    php-curl \
-    php-xml \
-    libapache2-mod-php
+# 安装和配置 oh-my-zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended \
+    && git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
+    && git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting \
+    && git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search /root/.oh-my-zsh/custom/plugins/zsh-history-substring-search
 
-# 安装Miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    bash ~/miniconda.sh -b -p $CONDA_DIR && \
-    rm ~/miniconda.sh && \
-    echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc && \
-    find $CONDA_DIR -follow -type f -name '*.a' -delete && \
-    find $CONDA_DIR -follow -type f -name '*.js.map' -delete && \
-    $CONDA_DIR/bin/conda clean -afy
+# 配置 zsh
+RUN sed -i 's/plugins=(git)/plugins=(git aws golang nmap node pip pipenv python ubuntu zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search)/g' /root/.zshrc \
+    && echo 'autoload -U compinit && compinit' >> /root/.zshrc
 
-# 创建Python环境并安装包
-RUN conda create -n security python=3.9 -y && \
-    conda activate security && \
-    conda install -y \
-        numpy \
-        pandas \
-        requests \
-        beautifulsoup4 \
-        lxml \
-        jupyter && \
-    conda clean -afy
+# 复制并安装 Miniconda
+COPY Miniconda3-py310_24.9.2-0-Linux-x86_64.sh /tmp/miniconda.sh
+RUN bash /tmp/miniconda.sh -p /opt/miniconda -b \
+    && rm /tmp/miniconda.sh
 
-# 编程语言和环境（移除了Python相关安装）
-RUN apt-get update && \
-    apt-get install -y \
-    openjdk-17-jdk \
-    ruby-full \
-    ruby-dev \
-    build-essential
+# 重新声明PATH确保conda命令可用
+ENV PATH=/opt/miniconda/bin:${PATH}
 
-# 安全工具
-RUN apt-get update && \
-    apt-get install -y \
-    nmap \
-    masscan \
-    nikto \
-    cewl \
-    crunch \
-    hydra \
-    medusa 
+# 配置 conda 环境
+RUN conda update -y conda \
+    && conda init bash \
+    && conda init zsh \
+    && echo ". /opt/miniconda/etc/profile.d/conda.sh" >> ~/.bashrc \
+    && echo ". /opt/miniconda/etc/profile.d/conda.sh" >> ~/.zshrc \
+    && . /opt/miniconda/etc/profile.d/conda.sh \
+    && conda create -n security python=3.9 -y \
+    && conda activate security \
+    && conda install -y \
+    numpy \
+    pandas \
+    requests \
+    beautifulsoup4 \
+    lxml \
+    jupyter \
+    scrapy \
+    scikit-learn \
+    matplotlib \
+    seaborn \
+    && conda clean -afy
 
-# 依赖库
-RUN apt-get update && \
-    apt-get install -y \
-    default-libmysqlclient-dev \
-    build-essential \
-    libssl-dev \
-    zlib1g-dev \
-    yasm \
-    pkg-config \
-    libgmp-dev \
-    libpcap-dev \
-    libbz2-dev \
-    libffi-dev
+# 安装其余系统工具
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # 网络工具
+    traceroute whois host dnsutils net-tools tcpdump \
+    telnet prips cifs-utils iputils-ping openvpn netcat-openbsd \
+    # 系统工具
+    htop figlet rlwrap locate tree vim ssh rsyslog dos2unix \
+    # 文件处理
+    unzip p7zip-full fcrackzip exiftool steghide binwalk foremost \
+    # Web服务
+    apache2 squid libcurl4-openssl-dev libssl-dev libwww-perl \
+    php php-cli php-curl php-xml libapache2-mod-php \
+    # 编程语言
+    openjdk-17-jdk ruby-full ruby-dev build-essential \
+    # 安全工具
+    nmap masscan nikto cewl crunch hydra medusa \
+    # 依赖库
+    default-libmysqlclient-dev libssl-dev zlib1g-dev yasm pkg-config \
+    libgmp-dev libpcap-dev libbz2-dev libffi-dev \
+    # 文档处理
+    jq sqlite3 texlive-full latexmk xsltproc pocl-opencl-icd \
+    # 时区设置
+    tzdata \
+    && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
+    && dpkg-reconfigure -f noninteractive tzdata \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# 文档和数据处理
-RUN apt-get update && \
-    apt-get install -y \
-    jq \
-    sqlite3 \
-    texlive-full \
-    latexmk \
-    xsltproc \
-    pocl-opencl-icd
-
-# Ruby gems安装
+# 安装 Ruby gems
 RUN gem install \
     gpp-decrypt \
     addressable \
     wpscan \
     evil-winrm
 
-# 清理缓存
-RUN apt-get clean
+# 设置默认环境
+RUN echo ". /opt/miniconda/etc/profile.d/conda.sh" >> ~/.bashrc \
+    && echo "conda activate security" >> ~/.bashrc \
+    && echo ". /opt/miniconda/etc/profile.d/conda.sh" >> ~/.zshrc \
+    && echo "conda activate security" >> ~/.zshrc
+
 
 # 设置默认的conda环境
 ENV CONDA_DEFAULT_ENV=security
-
 
 FROM baseline as builder
 
@@ -163,21 +119,6 @@ RUN echo "http_access allow all" >> /etc/squid/squid.conf && \
     sed -i 's/http_access deny all/#http_access deny all/g' /etc/squid/squid.conf
 
 # OS TOOLS
-# Install oh-my-zsh and plugins
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
-    # Set UTF-8 locale
-    echo 'export LC_CTYPE="C.UTF-8"' >> /root/.zshrc && \
-    echo 'export LC_ALL="C.UTF-8"' >> /root/.zshrc && \
-    echo 'export LANG="C.UTF-8"' >> /root/.zshrc && \
-    echo 'export LANGUAGE="C.UTF-8"' >> /root/.zshrc && \
-    # Install zsh plugins
-    git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
-    git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search /root/.oh-my-zsh/custom/plugins/zsh-history-substring-search && \
-    # Configure zsh plugins
-    sed -i 's/plugins=(git)/plugins=(git aws golang nmap node pip pipenv python ubuntu zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search)/g' /root/.zshrc && \
-    echo 'autoload -U compinit && compinit' >> /root/.zshrc
-
 # Install python dependencies
 COPY requirements_pip.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements_pip.txt && \
