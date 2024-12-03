@@ -171,42 +171,35 @@ FROM baseline as recon
 RUN mkdir /temp
 WORKDIR /temp/
 
-# Download whatweb
-RUN \
-    git clone --depth 1 https://github.com/urbanadventurer/WhatWeb.git && \
-# Install dirsearch
+# Web scanning tools
+RUN git clone --depth 1 https://github.com/urbanadventurer/WhatWeb.git && \
     git clone --depth 1 https://github.com/maurosoria/dirsearch.git && \
-# Download arjun
     git clone --depth 1 https://github.com/s0md3v/Arjun.git && \
-# Download joomscan
-    git clone --depth 1 https://github.com/rezasp/joomscan.git && \
-# Install massdns
-    git clone --depth 1 https://github.com/blechschmidt/massdns.git && \
-# Install striker
+    git clone --depth 1 https://github.com/rezasp/joomscan.git
+
+# DNS and reconnaissance tools
+RUN git clone --depth 1 https://github.com/blechschmidt/massdns.git && \
     git clone --depth 1 https://github.com/s0md3v/Striker.git && \
-# Install Photon
-    git clone --depth 1 https://github.com/s0md3v/Photon.git && \
-# Download linkfinder
-    git clone --depth 1 https://github.com/GerbenJavado/LinkFinder.git && \
-# Downlado CMSeeK
+    git clone --depth 1 https://github.com/s0md3v/Photon.git
+
+# Content discovery tools
+RUN git clone --depth 1 https://github.com/GerbenJavado/LinkFinder.git && \
     git clone --depth 1 https://github.com/Tuhinshubhra/CMSeeK.git && \
-# Install aquatone
-    wget --quiet https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip -O aquatone.zip && \
-    unzip aquatone.zip -d aquatone  && \
-    rm aquatone.zip && \
-# Install amass
-    wget --quiet https://github.com/OWASP/Amass/releases/download/v3.10.5/amass_linux_amd64.zip -O amass.zip && \
-    unzip amass.zip -d amass && \
-    rm amass.zip && \
-# Download Sublist3r
     git clone --depth 1 https://github.com/aboul3la/Sublist3r.git && \
-# Download spiderfoot
-    git clone --depth 1 https://github.com/smicallef/spiderfoot && \
-    mkdir /temp/gowitness && \
-    mkdir /temp/subfinder && \
-    mkdir /temp/findomain && \
-    mkdir /temp/gau && \
-    mkdir /temp/subjs
+    git clone --depth 1 https://github.com/smicallef/spiderfoot
+
+# Install Aquatone
+RUN wget --quiet https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip -O aquatone.zip && \
+    unzip aquatone.zip -d aquatone && \
+    rm aquatone.zip
+
+# Install Amass
+RUN wget --quiet https://github.com/OWASP/Amass/releases/download/v3.10.5/amass_linux_amd64.zip -O amass.zip && \
+    unzip amass.zip -d amass && \
+    rm amass.zip
+
+# Create working directories
+RUN mkdir -p /temp/{gowitness,subfinder,findomain,gau,subjs}
 
 WORKDIR /temp/Photon
 RUN \
