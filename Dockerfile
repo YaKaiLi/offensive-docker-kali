@@ -21,7 +21,7 @@ RUN apt-get update && \
     cifs-utils \
     iputils-ping \
     openvpn \
-    netcat 
+    netcat-traditional
 
 # 系统工具
 RUN apt-get update && \
