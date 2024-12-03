@@ -7,93 +7,117 @@ RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
 
 # Install packages
-RUN \
-    apt-get update && \
+# 网络工具
+RUN apt-get update && \
     apt-get install -y \
     traceroute \
     whois \
     host \
-    htop \
     dnsutils \
     net-tools \
-    figlet \
     tcpdump \
     telnet \
     prips \
     cifs-utils \
-    rlwrap \
     iputils-ping \
+    openvpn \
+    netcat 
+
+# 系统工具
+RUN apt-get update && \
+    apt-get install -y \
+    htop \
+    figlet \
+    rlwrap \
     git \
-    xsltproc \
     rdate \
     zsh \
+    locate \
+    tree \
+    vim \
+    wget \
+    ssh \
+    rsyslog \
+    dos2unix
+
+# 文件处理
+RUN apt-get update && \
+    apt-get install -y \
     curl \
     unzip \
     p7zip-full \
-    locate \
-    tree \
-    openvpn \
-    vim \
-    wget \
-    ftp \
+    fcrackzip \
+    exiftool \
+    steghide \
+    binwalk \
+    foremost
+
+# Web服务和开发
+RUN apt-get update && \
+    apt-get install -y \
     apache2 \
     squid \
-    python3 \
-    python3-pip \
-    jq \
     libcurl4-openssl-dev \
     libssl-dev \
+    libwww-perl \
+    chromium-browser \
+    php \
+    libapache2-mod-php
+
+# 编程语言和环境
+RUN apt-get update && \
+    apt-get install -y \
+    python3 \
+    python3-pip \
+    openjdk-8-jdk \
+    ruby-full \
+    python-dev
+
+# 安全工具
+RUN apt-get update && \
+    apt-get install -y \
     nmap \
     masscan \
     nikto \
-    netcat \
     cewl \
     crunch \
     hydra \
     medusa \
-    pocl-opencl-icd \
-    libwww-perl \
-    chromium-browser \
-    dos2unix \
-    openjdk-8-jdk \
-    ssh \
-    rsyslog \
-    fcrackzip \
-    texlive-full \
-    latexmk \
-    exiftool \
-    steghide \
-    binwalk \
-    foremost \
-    sqlite3 \
-    # patator dependencies
+    wpscan
+
+# 依赖库
+RUN apt-get update && \
+    apt-get install -y \
     libmysqlclient-dev \
-    # evil-winrm dependencies
-    ruby-full \
-    # enum4linux dependencies
-    ldap-utils \
-    smbclient \
-    # john dependencies
     build-essential \
     libssl-dev \
-    zlib1g-dev  \
+    zlib1g-dev \
     yasm \
     pkg-config \
     libgmp-dev \
     libpcap-dev \
     libbz2-dev \
-    # crackmapexec dependencies
-    libffi-dev \
-    python-dev && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y php \
-    libapache2-mod-php && \
-    gem install \
+    libffi-dev
+
+# 文档和数据处理
+RUN apt-get update && \
+    apt-get install -y \
+    jq \
+    sqlite3 \
+    texlive-full \
+    latexmk \
+    xsltproc \
+    pocl-opencl-icd
+
+# Ruby gems
+RUN gem install \
     gpp-decrypt \
     addressable \
     wpscan \
-    # Install evil-winrm
-    evil-winrm && \
-    apt-get update
+    evil-winrm
+
+# 清理缓存
+RUN apt-get clean
 
 RUN python3 -m pip install --upgrade pip
 
