@@ -1,0 +1,24 @@
+###
+ # @Author: star5o
+ # @Date: 2024-12-10 02:41:40
+ # @LastEditTime: 2024-12-10 18:03:10
+ # @LastEditors: star5o liyakai@iie.ac.cn
+ # @FilePath: /Auto-Pentest/dev_repo/docker/shell/banner
+### 
+export VERSION=v0.1
+# Colours
+greenColour="\e[0;32m\033[1m"
+endColour="\033[0m\e[0m"
+redColour="\e[0;31m\033[1m"
+blueColour="\e[0;34m\033[1m"
+yellowColour="\e[0;33m\033[1m"
+grayColour="\e[0;37m\033[1m"
+# Banner
+echo "\t${greenColour}************************************************************************************${yellowColour}"
+figlet -c -w 100 Offensive Docker
+echo "\t${redColour}Version: ${blueColour}$VERSION${endColour}"
+echo "\t${greenColour}------------------------------------------------------------------------------------"
+echo "\t${redColour}Creator: ${blueColour}star5o\t\t\t${redColour}Email: ${blueColour}jkliyakai@163.com"
+echo "\t${grayColour}Repositories links:"
+echo "\t${redColour}Github: ${blueColour}https://github.com/YaKaiLi/offensive-docker-kali"
+echo "\t${greenColour}************************************************************************************"
