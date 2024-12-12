@@ -1,3 +1,4 @@
+
 # Kali Linux Security Development Environment
 # Kali Linux 安全开发环境
 
@@ -32,21 +33,17 @@ A comprehensive security-focused development environment based on Kali Linux, eq
 - Kali Top 10 工具集
 
 ### Development Environment | 开发环境
-- Miniconda with two environments:
-  - `security` (Python 3.9)
-  - `ap` (Python 3.10)
+- Miniconda with Python 3.10
 - Go 1.22.1
 - Node.js 20.x
 - Git and essential development tools
 
-- Miniconda 双环境：
-  - `security`（Python 3.9）
-  - `ap`（Python 3.10）
+- Miniconda（Python 3.10）
 - Go 1.22.1
 - Node.js 20.x
 - Git 和基础开发工具
 
-### Python Packages (security environment) | Python 包（security 环境）
+### Python Packages (ap environment) | Python 包（ap 环境）
 - NumPy
 - Pandas
 - Requests
@@ -61,23 +58,23 @@ A comprehensive security-focused development environment based on Kali Linux, eq
 - zsh-autosuggestions
 - zsh-syntax-highlighting
 - zsh-history-substring-search
-- Various Oh My Zsh plugins (git, kali, aws, golang, nmap, etc.)
+- Various Oh My Zsh plugins (git, aws, golang, nmap, node, pip, python, ubuntu)
 
 - zsh-autosuggestions（自动提示）
 - zsh-syntax-highlighting（语法高亮）
 - zsh-history-substring-search（历史搜索）
-- 多个 Oh My Zsh 插件（git、kali、aws、golang、nmap 等）
+- 多个 Oh My Zsh 插件（git、aws、golang、nmap、node、pip、python、ubuntu）
 
 ## Usage | 使用方法
 
 ### Building the Image | 构建镜像
 ```bash
-docker build -t offensive-docker-kali .
+docker build -t security-dev-env .
 ```
 
 ### Running the Container | 运行容器
 ```bash
-docker run -it offensive-docker-kali
+docker run -it security-dev-env
 ```
 
 ### Pre-configured Aliases | 预配置别名
@@ -93,22 +90,26 @@ docker run -it offensive-docker-kali
 - `CONDA_DIR=/opt/miniconda`
 - `GOROOT=/usr/local/go`
 - `GOPATH=/root/go`
+- `LC_ALL=C.UTF-8`
+- `LANG=C.UTF-8`
 
 ## Additional Features | 附加功能
 - Automatic PostgreSQL service start
 - Custom shell configurations and functions
 - Pre-configured banner and aliases
 - Automatic conda environment activation
+- Custom shell functions and aliases
 
 - PostgreSQL 服务自动启动
 - 自定义 shell 配置和函数
 - 预配置的欢迎横幅和别名
 - Conda 环境自动激活
+- 自定义 shell 函数和别名
 
 ## Maintainer | 维护者
 - Maintainer | 维护者: star5o
 - Email | 邮箱: jkliyakai@163.com
-- Version | 版本: 1.0
+- Version | 版本: 0.6
 
 ## Notes | 注意事项
 - The container starts with the `ap` conda environment activated by default
