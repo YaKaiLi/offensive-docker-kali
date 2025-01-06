@@ -7,7 +7,7 @@ A comprehensive security-focused development environment based on Kali Linux, eq
 基于 Kali Linux 的综合安全开发环境，配备必要的渗透测试工具和开发框架。
 
 ## Features | 功能特点
-
+dulala/offensive-docker-kali
 ### Base System | 基础系统
 - Based on `kali-rolling` with latest security updates
 - Pre-configured timezone (Asia/Shanghai)
