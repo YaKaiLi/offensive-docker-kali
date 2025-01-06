@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Dockerfile'
+  workflow_dispatch:    # 添加手动触发按钮
 
 jobs:
   build:
@@ -31,4 +34,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/offensive-docker-kali:${{ env.DATE_TAG }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/offensive-docker-kali:${{ env.DATE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/offensive-docker-kali:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
