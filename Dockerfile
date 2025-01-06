@@ -3,7 +3,7 @@ FROM kalilinux/kali-rolling
 LABEL maintainer="star5o" \
     email="jkliyakai@163.com" \
     description="Security focused development environment based on Kali Linux" \
-    version="0.6"
+    version="0.7"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Asia/Shanghai \
@@ -19,7 +19,30 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     zsh git lrzsz curl wget vim plocate \
     metasploit-framework sqlmap postgresql \
-    kali-linux-headless kali-tools-top10 figlet && \
+    kali-linux-headless kali-tools-top10 figlet \
+    # Add network and enumeration tools
+    nmap masscan netcat-traditional iputils-ping \
+    smbclient smbmap enum4linux crackmapexec \
+    gobuster dirb dirbuster wfuzz \
+    # Add web application testing tools
+    wpscan nikto whatweb wafw00f \
+    burpsuite zaproxy \
+    # Add password and bruteforce tools
+    hydra john hashcat medusa \
+    # Add exploitation tools
+    exploitdb set shellnoob \
+    # Add wireless tools
+    aircrack-ng reaver pixiewps \
+    # Add forensics tools
+    binwalk foremost testdisk \
+    # Add vulnerability scanners
+    openvas nessus \
+    # Add miscellaneous tools
+    steghide hexedit xxd \
+    cewl crunch rsmangler \
+    # Add projectdiscovery tools and others
+    nuclei subfinder httpx ffuf \
+    && \
     # Initialize MSF database
     service postgresql start && msfdb init && \
     # Install Oh My Zsh and plugins
@@ -27,6 +50,17 @@ RUN apt-get update && apt-get upgrade -y && \
     git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
     git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
     git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search /root/.oh-my-zsh/custom/plugins/zsh-history-substring-search
+
+# Install wordlists and dictionaries
+RUN mkdir -p /usr/share/wordlists && \
+    cd /usr/share/wordlists && \
+    # Download SecLists
+    git clone --depth 1 https://github.com/danielmiessler/SecLists.git && \
+    # Download common password lists
+    wget https://raw.githubusercontent.com/praetorian-inc/Hob0Rules/master/wordlists/rockyou.txt.gz && \
+    gunzip rockyou.txt.gz && \
+    # Download directory bruteforce lists
+    wget https://raw.githubusercontent.com/maurosoria/dirsearch/master/db/dicc.txt
 
 # Install Miniconda and set up Python environment
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86_64.sh -O /tmp/miniconda.sh && \
@@ -60,15 +94,12 @@ RUN sed -i 's/plugins=(git)/plugins=(git aws golang nmap node pip python ubuntu 
     echo 'conda activate ap' >> /root/.zshrc && \
     echo '[ -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting ] || echo "Warning: zsh-syntax-highlighting plugin directory not found"' >> /root/.zshrc
 
-# Set up Go environment and tools
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg" && \
-    go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest && \
-    nuclei -update-templates
+# Set up Go environment
+RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg"
 
 # Configure timezone
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
-
 
 # 复制自定义shell配置文件
 COPY shell/ /tmp/
@@ -84,7 +115,6 @@ RUN echo 'alias msfconsole="service postgresql start && msfconsole"' >> /root/.z
     echo 'alias msf="service postgresql start && msfconsole"' >> /root/.zshrc && \
     echo 'msfdb-start() { service postgresql start && msfdb init; }' >> /root/.zshrc
 
-
 WORKDIR /root/ap
 
 # Create and configure entrypoint
@@ -97,6 +127,7 @@ RUN echo '#!/bin/zsh\n\
     exec /usr/bin/zsh' > /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
-
 SHELL ["/usr/bin/zsh", "-c"]
 ENTRYPOINT ["/entrypoint.sh"]
+# 需要添加ping gobuster 目录字典 弱密码 用户字典 wordlists cewl smbclient openvas wpscan nessus linPEAS 或者 lse chisel openvas-cli等工具
+# run的时候添加doc ker sockets
