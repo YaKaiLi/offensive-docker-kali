@@ -1,121 +1,131 @@
 
-# Kali Linux Security Development Environment
-# Kali Linux 安全开发环境
+# Offensive Docker Kali
+[![Docker Pulls](https://img.shields.io/docker/pulls/dulala/offensive-docker-kali.svg)](https://hub.docker.com/r/dulala/offensive-docker-kali)
+[![Docker Stars](https://img.shields.io/docker/stars/dulala/offensive-docker-kali.svg)](https://hub.docker.com/r/dulala/offensive-docker-kali)
 
 A comprehensive security-focused development environment based on Kali Linux, equipped with essential penetration testing tools and development frameworks.
 
 基于 Kali Linux 的综合安全开发环境，配备必要的渗透测试工具和开发框架。
 
-## Features | 功能特点
-dulala/offensive-docker-kali
-### Base System | 基础系统
-- Based on `kali-rolling` with latest security updates
-- Pre-configured timezone (Asia/Shanghai)
-- ZSH shell with Oh My Zsh and custom plugins
-- Customized terminal experience with Agnoster theme
+## Quick Start | 快速开始
 
-- 基于 `kali-rolling` 并包含最新安全更新
-- 预配置时区（亚洲/上海）
-- 配备 Oh My Zsh 和自定义插件的 ZSH shell
-- 使用 Agnoster 主题的定制终端体验
+```bash
+# Pull the image
+docker pull dulala/offensive-docker-kali:latest
+
+# Run the container
+docker run -it dulala/offensive-docker-kali
+```
+
+## Features | 功能特点
 
 ### Security Tools | 安全工具
-- Metasploit Framework (with PostgreSQL integration)
-- SQLMap
-- Nuclei (with latest templates)
-- Kali Linux Headless
-- Top 10 Kali Tools
-
-- Metasploit 框架（集成 PostgreSQL）
-- SQLMap
-- Nuclei（附带最新模板）
-- Kali Linux Headless
-- Kali Top 10 工具集
+- **Network Tools**: nmap, masscan, netcat-traditional
+- **Web Tools**: gobuster, dirb, dirbuster, wfuzz, nikto, whatweb, wafw00f
+- **Exploitation**: metasploit-framework, burpsuite, zaproxy
+- **Password Tools**: hydra, john, hashcat
+- **Wireless**: aircrack-ng, reaver, pixiewps
+- **Forensics**: binwalk, foremost, testdisk
+- **Others**: sqlmap, crackmapexec, exploitdb
 
 ### Development Environment | 开发环境
-- Miniconda with Python 3.10
-- Go 1.22.1
-- Node.js 20.x
-- Git and essential development tools
+- **Python**: Miniconda (Python 3.10)
+  - NumPy, Pandas, Requests
+  - BeautifulSoup4, Jupyter
+  - Scrapy, Scikit-learn
+  - Matplotlib, Seaborn
+- **Go**: v1.22.1
+- **Node.js**: 20.x
+- **Tools**: git, vim, curl, wget
 
-- Miniconda（Python 3.10）
-- Go 1.22.1
-- Node.js 20.x
-- Git 和基础开发工具
+### Shell Environment | Shell 环境
+- ZSH with Oh My Zsh
+- Custom plugins and themes
+- Agnoster theme
+- Autosuggestions and syntax highlighting
 
-### Python Packages (ap environment) | Python 包（ap 环境）
-- NumPy
-- Pandas
-- Requests
-- BeautifulSoup4
-- Jupyter
-- Scrapy
-- Scikit-learn
-- Matplotlib
-- Seaborn
+## Usage Examples | 使用示例
 
-### ZSH Plugins | ZSH 插件
-- zsh-autosuggestions
-- zsh-syntax-highlighting
-- zsh-history-substring-search
-- Various Oh My Zsh plugins (git, aws, golang, nmap, node, pip, python, ubuntu)
-
-- zsh-autosuggestions（自动提示）
-- zsh-syntax-highlighting（语法高亮）
-- zsh-history-substring-search（历史搜索）
-- 多个 Oh My Zsh 插件（git、aws、golang、nmap、node、pip、python、ubuntu）
-
-## Usage | 使用方法
-
-### Building the Image | 构建镜像
+### Basic Usage | 基本使用
 ```bash
-docker build -t security-dev-env .
+# Start container with host network
+docker run -it --network host dulala/offensive-docker-kali
+
+# Mount a local directory
+docker run -it -v $(pwd):/root/workspace dulala/offensive-docker-kali
+
+# Start with specific tools
+docker run -it dulala/offensive-docker-kali msfconsole
 ```
 
-### Running the Container | 运行容器
+### Pre-configured Aliases | 预置别名
 ```bash
-docker run -it security-dev-env
+# Start Metasploit
+msf
+
+# Initialize MSF database
+msfdb-start
 ```
 
-### Pre-configured Aliases | 预配置别名
-- `msf` or `msfconsole`: Start Metasploit Framework with PostgreSQL
-- `msfdb-start`: Initialize MSF database
+## Installed Tools | 已安装工具
 
-- `msf` 或 `msfconsole`：启动 Metasploit Framework（含 PostgreSQL）
-- `msfdb-start`：初始化 MSF 数据库
+### Network & Web | 网络和Web工具
+- nmap
+- masscan
+- netcat-traditional
+- gobuster
+- dirb/dirbuster
+- wfuzz
+- nikto
+- whatweb
+- wafw00f
+
+### Exploitation & Password | 漏洞利用和密码工具
+- metasploit-framework
+- burpsuite
+- zaproxy
+- hydra
+- john
+- hashcat
+
+### Forensics & Others | 取证和其他工具
+- binwalk
+- foremost
+- testdisk
+- sqlmap
+- crackmapexec
+- exploitdb
 
 ## Environment Variables | 环境变量
-- `DEBIAN_FRONTEND=noninteractive`
-- `TZ=Asia/Shanghai`
-- `CONDA_DIR=/opt/miniconda`
-- `GOROOT=/usr/local/go`
-- `GOPATH=/root/go`
-- `LC_ALL=C.UTF-8`
-- `LANG=C.UTF-8`
-
-## Additional Features | 附加功能
-- Automatic PostgreSQL service start
-- Custom shell configurations and functions
-- Pre-configured banner and aliases
-- Automatic conda environment activation
-- Custom shell functions and aliases
-
-- PostgreSQL 服务自动启动
-- 自定义 shell 配置和函数
-- 预配置的欢迎横幅和别名
-- Conda 环境自动激活
-- 自定义 shell 函数和别名
-
-## Maintainer | 维护者
-- Maintainer | 维护者: star5o
-- Email | 邮箱: jkliyakai@163.com
-- Version | 版本: 0.6
+```bash
+DEBIAN_FRONTEND=noninteractive
+TZ=Asia/Shanghai
+CONDA_DIR=/opt/miniconda
+GOROOT=/usr/local/go
+GOPATH=/root/go
+LC_ALL=C.UTF-8
+LANG=C.UTF-8
+```
 
 ## Notes | 注意事项
-- The container starts with the `ap` conda environment activated by default
-- PostgreSQL service starts automatically on container launch
-- All tools and environments are pre-configured and ready to use
+- Container starts with `ap` conda environment activated
+- PostgreSQL service starts automatically
+- All tools are pre-configured and ready to use
+- Some tools may require additional configuration
 
-- 容器默认启动时激活 `ap` conda 环境
-- 容器启动时自动启动 PostgreSQL 服务
-- 所有工具和环境均已预配置完成，可直接使用
+## Contributing | 贡献
+Feel free to submit issues and enhancement requests!
+
+欢迎提交问题和改进建议！
+
+## Maintainer | 维护者
+- **Author**: star5o
+- **Email**: jkliyakai@163.com
+- **Version**: 0.7
+
+## License | 许可
+MIT License
+
+## Links | 相关链接
+- [Docker Hub](https://hub.docker.com/r/dulala/offensive-docker-kali)
+- [GitHub](https://github.com/yourusername/offensive-docker-kali)
