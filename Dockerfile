@@ -129,5 +129,5 @@ RUN echo '#!/bin/zsh\n\
 
 SHELL ["/usr/bin/zsh", "-c"]
 ENTRYPOINT ["/entrypoint.sh"]
-# 需要添加ping gobuster 目录字典 弱密码 用户字典 wordlists cewl smbclient openvas wpscan nessus linPEAS 或者 lse chisel openvas-cli等工具
+# 需要添加ping gobuster 目录字典 弱密码 用户字典 wordlists cewl smbclient openvas wpscan nessus linPEAS 或者 lse chisel openvas-cli等工具test
 # run的时候添加doc ker sockets
