@@ -14,39 +14,43 @@ ENV DEBIAN_FRONTEND=noninteractive \
     GOPATH="/root/go" \
     PATH="/opt/miniconda/bin:/root/go/bin:/usr/local/go/bin:${PATH}"
 
-# Combine multiple RUN commands and clean up in the same layer
+# 更新系统并安装基础工具
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     zsh git lrzsz curl wget vim plocate \
-    metasploit-framework sqlmap postgresql \
-    kali-linux-headless kali-tools-top10 figlet \
-    # Add network and enumeration tools
+    postgresql figlet \
+    # 基础网络工具
     nmap masscan netcat-traditional iputils-ping \
-    smbclient smbmap enum4linux crackmapexec \
+    smbclient smbmap enum4linux \
+    # Web应用工具
     gobuster dirb dirbuster wfuzz \
-    # Add web application testing tools
-    wpscan nikto whatweb wafw00f \
-    burpsuite zaproxy \
-    # Add password and bruteforce tools
-    hydra john hashcat medusa \
-    # Add exploitation tools
-    exploitdb set shellnoob \
-    # Add wireless tools
-    aircrack-ng reaver pixiewps \
-    # Add forensics tools
-    binwalk foremost testdisk \
-    # Add vulnerability scanners
-    openvas nessus \
-    # Add miscellaneous tools
+    nikto whatweb wafw00f \
+    # 密码工具
+    hydra john hashcat \
+    # 其他工具
     steghide hexedit xxd \
-    cewl crunch rsmangler \
-    # Add projectdiscovery tools and others
-    nuclei subfinder httpx ffuf \
-    && \
-    # Initialize MSF database
+    cewl crunch rsmangler && \
+    # 清理
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# 安装Kali工具
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    metasploit-framework sqlmap \
+    kali-linux-headless kali-tools-top10 \
+    crackmapexec wpscan burpsuite zaproxy \
+    exploitdb shellnoob \
+    aircrack-ng reaver pixiewps \
+    binwalk foremost testdisk && \
+    # 初始化MSF数据库
     service postgresql start && msfdb init && \
-    # Install Oh My Zsh and plugins
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    # 清理
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# 安装Oh My Zsh和插件
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
     git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
     git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search /root/.oh-my-zsh/custom/plugins/zsh-history-substring-search
@@ -129,5 +133,3 @@ RUN echo '#!/bin/zsh\n\
 
 SHELL ["/usr/bin/zsh", "-c"]
 ENTRYPOINT ["/entrypoint.sh"]
-# 需要添加ping gobuster 目录字典 弱密码 用户字典 wordlists cewl smbclient openvas wpscan nessus linPEAS 或者 lse chisel openvas-cli等工具test
-# run的时候添加doc ker sockets
