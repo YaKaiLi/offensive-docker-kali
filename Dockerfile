@@ -35,26 +35,11 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86
 
 # Install development libraries and build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Basic build tools
     build-essential \
-    # Python development
     python3-dev \
-    # PostgreSQL development
     libpq-dev \
-    # OpenVAS/GVM dependencies
     cmake pkg-config \
-    libglib2.0-dev \
-    libgpgme11-dev \
-    libgnutls28-dev \
-    uuid-dev \
-    libssh-dev \
-    libhiredis-dev \
-    libxml2-dev \
-    libpcap-dev \
-    libnet1-dev \
-    libmicrohttpd-dev \
     redis-server \
-    xsltproc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -83,9 +68,8 @@ RUN apt-get update && \
     crackmapexec wpscan burpsuite zaproxy \
     exploitdb shellnoob \
     aircrack-ng reaver pixiewps \
-    binwalk foremost testdisk \
-    openvas \
-    && service postgresql start && msfdb init && \
+    binwalk foremost testdisk && \
+    service postgresql start && msfdb init && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -122,14 +106,6 @@ RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest && \
     wget https://github.com/shadow1ng/fscan/releases/download/1.8.4/fscan -O /usr/local/bin/fscan && \
     chmod +x /usr/local/bin/fscan
-
-# Initialize OpenVAS
-RUN systemctl enable redis-server && \
-    greenbone-nvt-sync && \
-    greenbone-feed-sync --type GVMD_DATA && \
-    greenbone-feed-sync --type SCAP && \
-    greenbone-feed-sync --type CERT && \
-    gvm-setup
 
 # Configure timezone and locale
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
