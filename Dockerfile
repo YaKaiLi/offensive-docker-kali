@@ -120,7 +120,7 @@ RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg"
 RUN . /opt/miniconda/etc/profile.d/conda.sh && \
     conda activate ap && \
     go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest && \
-    wget https://github.com/shadow1ng/fscan/releases/latest/download/fscan_amd64 -O /usr/local/bin/fscan && \
+    wget https://github.com/shadow1ng/fscan/releases/download/1.8.4/fscan -O /usr/local/bin/fscan && \
     chmod +x /usr/local/bin/fscan
 
 # Initialize OpenVAS
