@@ -3,7 +3,7 @@ FROM kalilinux/kali-rolling
 LABEL maintainer="star5o" \
     email="jkliyakai@163.com" \
     description="Security focused development environment based on Kali Linux" \
-    version="0.7"
+    version="0.8"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Asia/Shanghai \
@@ -14,57 +14,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
     GOPATH="/root/go" \
     PATH="/opt/miniconda/bin:/root/go/bin:/usr/local/go/bin:${PATH}"
 
-# 更新系统并安装基础工具
+# First install minimal essential packages
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-    zsh git lrzsz curl wget vim plocate \
-    postgresql figlet \
-    # 基础网络工具
-    nmap masscan netcat-traditional iputils-ping \
-    smbclient smbmap enum4linux \
-    # Web应用工具
-    gobuster dirb dirbuster wfuzz \
-    nikto whatweb wafw00f \
-    # 密码工具
-    hydra john hashcat \
-    # 其他工具
-    steghide hexedit xxd \
-    cewl crunch rsmangler && \
-    # 清理
+    wget curl ca-certificates \
+    git zsh lrzsz vim plocate htop && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-# 安装Kali工具
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    metasploit-framework sqlmap \
-    kali-linux-headless kali-tools-top10 \
-    crackmapexec wpscan burpsuite zaproxy \
-    exploitdb shellnoob \
-    aircrack-ng reaver pixiewps \
-    binwalk foremost testdisk && \
-    # 初始化MSF数据库
-    service postgresql start && msfdb init && \
-    # 清理
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# 安装Oh My Zsh和插件
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
-    git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
-    git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
-    git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search /root/.oh-my-zsh/custom/plugins/zsh-history-substring-search
-
-# Install wordlists and dictionaries
-RUN mkdir -p /usr/share/wordlists && \
-    cd /usr/share/wordlists && \
-    # Download SecLists
-    git clone --depth 1 https://github.com/danielmiessler/SecLists.git && \
-    # Download common password lists
-    wget https://raw.githubusercontent.com/praetorian-inc/Hob0Rules/master/wordlists/rockyou.txt.gz && \
-    gunzip rockyou.txt.gz && \
-    # Download directory bruteforce lists
-    wget https://raw.githubusercontent.com/maurosoria/dirsearch/master/db/dicc.txt
 
 # Install Miniconda and set up Python environment
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86_64.sh -O /tmp/miniconda.sh && \
@@ -72,61 +28,142 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86
     rm /tmp/miniconda.sh && \
     . /opt/miniconda/etc/profile.d/conda.sh && \
     conda update -y conda && \
-    conda init bash && \
-    conda init zsh && \
+    conda init bash && conda init zsh && \
     conda create -n ap python=3.10 -y && \
     conda install -y -n ap numpy pandas requests beautifulsoup4 lxml jupyter scrapy scikit-learn matplotlib seaborn && \
     conda clean -afy
+
+# Install development libraries and build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Basic build tools
+    build-essential \
+    # Python development
+    python3-dev \
+    # PostgreSQL development
+    libpq-dev \
+    # OpenVAS/GVM dependencies
+    cmake pkg-config \
+    libglib2.0-dev \
+    libgpgme11-dev \
+    libgnutls28-dev \
+    uuid-dev \
+    libssh-gcrypt-dev \
+    libhiredis-dev \
+    libxml2-dev \
+    libpcap-dev \
+    libnet1-dev \
+    libmicrohttpd-dev \
+    redis-server \
+    xsltproc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install tools that might depend on Python and dev libraries
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql figlet gcc \
+    # Network tools 
+    nmap masscan netcat-traditional iputils-ping \
+    smbclient smbmap enum4linux \
+    # Web tools
+    gobuster dirb dirbuster wfuzz \
+    nikto whatweb wafw00f \
+    # Password tools
+    hydra john hashcat \
+    # Additional tools
+    steghide hexedit xxd \
+    cewl crunch rsmangler && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Kali tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    metasploit-framework sqlmap \
+    kali-linux-headless kali-tools-top10 \
+    crackmapexec wpscan burpsuite zaproxy \
+    exploitdb shellnoob \
+    aircrack-ng reaver pixiewps \
+    binwalk foremost testdisk \
+    openvas \
+    && service postgresql start && msfdb init && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install zsh plugins
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions /root/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+    git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting /root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
+    git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search /root/.oh-my-zsh/custom/plugins/zsh-history-substring-search
+
+# Install security wordlists
+RUN mkdir -p /usr/share/wordlists && \
+    cd /usr/share/wordlists && \
+    git clone --depth 1 https://github.com/danielmiessler/SecLists.git && \
+    wget https://raw.githubusercontent.com/praetorian-inc/Hob0Rules/master/wordlists/rockyou.txt.gz && \
+    gunzip rockyou.txt.gz && \
+    wget https://raw.githubusercontent.com/maurosoria/dirsearch/master/db/dicc.txt
 
 # Install Go and Node.js
 RUN wget -q https://dl.google.com/go/go1.22.1.linux-amd64.tar.gz -O /tmp/go.tar.gz && \
     tar -C /usr/local -xzf /tmp/go.tar.gz && \
     rm /tmp/go.tar.gz && \
-    # Install Node.js
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@latest && \
-    # Clean up
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Configure Zsh
-RUN sed -i 's/plugins=(git)/plugins=(git aws golang nmap node pip python ubuntu zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search)/g' /root/.zshrc && \
-    sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' /root/.zshrc && \
-    echo 'autoload -U compinit && compinit' >> /root/.zshrc && \
-    echo '. /opt/miniconda/etc/profile.d/conda.sh' >> /root/.zshrc && \
-    echo 'conda activate ap' >> /root/.zshrc && \
-    echo '[ -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting ] || echo "Warning: zsh-syntax-highlighting plugin directory not found"' >> /root/.zshrc
 
 # Set up Go environment
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" "$GOPATH/pkg"
 
-# Configure timezone
+# Install additional security tools
+RUN . /opt/miniconda/etc/profile.d/conda.sh && \
+    conda activate ap && \
+    go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest && \
+    wget https://github.com/shadow1ng/fscan/releases/latest/download/fscan_amd64 -O /usr/local/bin/fscan && \
+    chmod +x /usr/local/bin/fscan
+
+# Initialize OpenVAS
+RUN systemctl enable redis-server && \
+    greenbone-nvt-sync && \
+    greenbone-feed-sync --type GVMD_DATA && \
+    greenbone-feed-sync --type SCAP && \
+    greenbone-feed-sync --type CERT && \
+    gvm-setup
+
+# Configure timezone and locale
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata
 
-# 复制自定义shell配置文件
-COPY shell/ /tmp/
+# Configure zsh
+RUN sed -i 's/plugins=(git)/plugins=(git aws golang nmap node pip python ubuntu zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search)/g' /root/.zshrc && \
+    sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' /root/.zshrc && \
+    echo 'autoload -U compinit && compinit' >> /root/.zshrc && \
+    echo '. /opt/miniconda/etc/profile.d/conda.sh' >> /root/.zshrc && \
+    echo 'conda activate ap' >> /root/.zshrc
 
-# 应用自定义配置
+# Copy and apply custom shell configurations
+COPY shell/ /tmp/
 RUN cat /tmp/banner >> /root/.zshrc && \
     cat /tmp/alias >> /root/.zshrc && \
     cat /tmp/customFunctions >> /root/.zshrc && \
     updatedb
 
-# 添加常用的渗透测试别名和函数
+# Add penetration testing aliases
 RUN echo 'alias msfconsole="service postgresql start && msfconsole"' >> /root/.zshrc && \
     echo 'alias msf="service postgresql start && msfconsole"' >> /root/.zshrc && \
-    echo 'msfdb-start() { service postgresql start && msfdb init; }' >> /root/.zshrc
+    echo 'msfdb-start() { service postgresql start && msfdb init; }' >> /root/.zshrc && \
+    echo 'alias nmap="nmap --privileged"' >> /root/.zshrc
 
 WORKDIR /root/ap
 
-# Create and configure entrypoint
+# Create entrypoint
 RUN echo '#!/bin/zsh\n\
     if [ -f /var/run/postgresql/*.pid ]; then\n\
     rm /var/run/postgresql/*.pid\n\
     fi\n\
     service postgresql start\n\
+    service redis-server start\n\
     conda activate ap\n\
     exec /usr/bin/zsh' > /entrypoint.sh && \
     chmod +x /entrypoint.sh
