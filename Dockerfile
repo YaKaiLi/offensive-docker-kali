@@ -47,7 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgpgme11-dev \
     libgnutls28-dev \
     uuid-dev \
-    libssh-gcrypt-dev \
+    libssh-dev \
     libhiredis-dev \
     libxml2-dev \
     libpcap-dev \
